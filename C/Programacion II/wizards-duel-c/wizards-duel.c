@@ -66,3 +66,98 @@ La función devolverá el daño causado según el elemento:
 //Asignatura: Introducción a la Programación II
 //Fecha: 03/03/2026
 
+#include <stdio.h>
+#include <stdlib.h> 
+#include <time.h>
+
+void ensenaMenu();
+int main(int argc, char* argv[]){
+	
+	//1. Introducimos parámetros por argv y verificamos si son correctos en cuanto a cantidad y sintaxis
+	
+	if(argc != 4){
+		printf("Numero incorrecto de argumentos.");
+		return 1;
+	}
+	
+	char nombreUsuario1[50];
+	char ataqueUsuario1[10];
+	char elementoUsuario1[50];
+	
+	char nombreUsuario2[50];
+	char ataqueUsuario2[10];
+	char elementoUsuario2[50];
+	
+	char energia [10];
+	
+	for(int i = 1; i < argc; i++){
+		char *entrada = argv[i];
+		char cont = 0;
+		char numeroBucle = 0;
+		char buffer[200];
+		
+		for(int j = 0; entrada[j] != ' ' && entrada[j] != '\0'; j++){
+			printf("entrada[j] -> %c \n", entrada[j]);
+			
+			if(entrada[j] == ','){
+				printf("Coma encontrada \n");
+				cont++;
+				if(cont == 1 && numeroBucle == 0){
+					for(int a = 0; a < j; a++){
+						printf("Letra -> %c ", entrada[a]);
+						nombreUsuario1[a] = entrada[a];
+					}
+					printf("Primera coma encontrada \n");
+				}
+			}
+		}
+		
+		//printf("Entrada -> %s\n", entrada);
+	}
+	
+	printf("Nombre de usuario -> %s \n", nombreUsuario1);
+	
+	/*for(int i = 1; i < argc; i++){
+		
+		char *entrada = argv[i];
+		char buffer[100];
+		char index = 0;
+		
+		for(int j = 0; entrada[j] != '\0'; j++){
+			
+			//Revisar por que no vuelve cuando encuentra una ,
+			if(entrada[j] != ','){
+				buffer[index] = entrada[j];
+				index++;
+			}else {
+				buffer[index] = '\0';
+			}
+			
+		}
+		
+		printf("buffer -> %s ",  buffer);
+	}*/
+	
+	//ensenaMenu();
+	
+	
+	//printf("Primer parametro -> %s \n Segundo parametro -> %s \n Tercer parametro -> %s", primerArgumento, segundoArgumento, tercerArgumento);
+	
+	//2. Inicializamos struct de magos
+	
+	//3. Creación del panel e introducción del mismo en un bucle
+	
+	//4. Inicialización de las funciones obligatorias por cada opción + energia
+	
+	//5. Inicialización de función random para el ataque de la maquina
+	
+	//6. Resto de lógica
+
+	return 0;
+}
+
+void ensenaMenu(){
+	printf("1) atacar \n");
+	printf("2) recargar energia \n");
+	printf("3) mostrar estado \n");
+}

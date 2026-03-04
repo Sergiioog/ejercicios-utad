@@ -42,7 +42,7 @@ int main(int argc, char* argv[]){
 	
 	//Concatenamos y mostramos por consola
 	char DNI[9];
-	for(int j = 0; j <= 7; j++){
+	for(int j = 0; j <= 7; j++)
 		DNI[j] = argv[1][j];
 	}
 	
