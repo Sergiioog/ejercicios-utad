@@ -92,8 +92,8 @@ int main(int argc, char* argv[]){
 	
 	char buffer[200];
 	int pos = 0;
-	int finPalabra1 = 0
-	int finPalabra2 = 0
+	int finPalabra1 = 0;
+	int finPalabra2 = 0;
 	int cont = 0;
 	
 	
