@@ -90,53 +90,61 @@ int main(int argc, char* argv[]){
 	
 	char energia [10];
 	
+	char buffer[200];
+	int pos = 0;
+	int finPalabra1 = 0
+	int finPalabra2 = 0
+	int cont = 0;
+	
+	
 	for(int i = 1; i < argc; i++){
-		char *entrada = argv[i];
-		char cont = 0;
-		char numeroBucle = 0;
-		char buffer[200];
+        
+		char *elemento = argv[i];
 		
-		for(int j = 0; entrada[j] != ' ' && entrada[j] != '\0'; j++){
-			printf("entrada[j] -> %c \n", entrada[j]);
-			
-			if(entrada[j] == ','){
-				printf("Coma encontrada \n");
-				cont++;
-				if(cont == 1 && numeroBucle == 0){
-					for(int a = 0; a < j; a++){
-						printf("Letra -> %c ", entrada[a]);
-						nombreUsuario1[a] = entrada[a];
-					}
-					printf("Primera coma encontrada \n");
-				}
-			}
+        for(int j = 0; elemento[j] != '\0'; j++){
+			buffer[pos++] = elemento[j];
 		}
 		
-		//printf("Entrada -> %s\n", entrada);
+        buffer[pos++] = ' '; //Añadimos espacio al buffer por cada elemento para poder iterar y sacar el 3 valor del string (elemento)
+    }
+	
+    buffer[pos] = '\0';
+	
+    for(int j = 0; buffer[j] != '\0'; j++){
+		
+        if(buffer[j] == ','){
+            cont++;
+			
+            if(cont == 1){
+				
+                for(int a = 0; a < j; a++){
+					nombreUsuario1[a] = buffer[a];
+				}
+                nombreUsuario1[j] = '\0';
+                finPalabra1 = j + 1;
+            
+			} else if(cont == 2){
+				
+                int k = 0;
+                for(int b = finPalabra1; b < j; b++){
+					ataqueUsuario1[k++] = buffer[b];
+				}
+                ataqueUsuario1[k] = '\0';
+                finPalabra2 = j + 1;
+            }
+        }
+    
 	}
 	
-	printf("Nombre de usuario -> %s \n", nombreUsuario1);
+    int contElemento = 0;
+    for(int b = finPalabra2; buffer[b] != '\0' && buffer[b] != ' '; b++){
+		elementoUsuario1[contElemento++] = buffer[b];
+	}
+    elementoUsuario1[contElemento] = '\0';
 	
-	/*for(int i = 1; i < argc; i++){
-		
-		char *entrada = argv[i];
-		char buffer[100];
-		char index = 0;
-		
-		for(int j = 0; entrada[j] != '\0'; j++){
-			
-			//Revisar por que no vuelve cuando encuentra una ,
-			if(entrada[j] != ','){
-				buffer[index] = entrada[j];
-				index++;
-			}else {
-				buffer[index] = '\0';
-			}
-			
-		}
-		
-		printf("buffer -> %s ",  buffer);
-	}*/
+	printf("Nombre de usuario 1-> %s \n", nombreUsuario1);
+	printf("Ataque de usuario 1-> %s \n", ataqueUsuario1);
+	printf("Elemento de usuario 1-> %s \n", elementoUsuario1);
 	
 	//ensenaMenu();
 	
