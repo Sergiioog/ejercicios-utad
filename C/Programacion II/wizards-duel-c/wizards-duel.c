@@ -80,7 +80,7 @@ int main(int argc, char* argv[]){
 		return 1;
 	}
 	
-	char nombreUsuario1[50];
+	char nombreUsuario1[100];
 	char ataqueUsuario1[10];
 	char elementoUsuario1[50];
 	
@@ -92,69 +92,129 @@ int main(int argc, char* argv[]){
 	
 	char buffer[200];
 	int pos = 0;
-	int finPalabra1 = 0;
-	int finPalabra2 = 0;
-	int cont = 0;
+	
+	//Variables de la palabra 1 string 1
+	int contadorDePalabras = 0; //cont
+	int contLetrasPrimeraPalabra = 0; 
+	int finPalabra1;
+	
+	//Variables de la palabra 2 string 1
+	int inicioSegundaPalabra;
+	int contLetrasSegundaPalabra = 0; 
+	int finPalabra2;
+	
+	//Variables de la palabra 3 string 1
+	int inicioTerceraPalabra;
+	int contLetrasTerceraPalabra = 0;
+	int finPalabra3;
+	
+	//Variables de la palabra 1 string 2
+	int inicioCuartaPalabra;
+	int contLetrasCuartaPalabra = 0;
+	int finPalabra4;
+	
+	//Variables de la palabra 2 string 2
+	int inicioQuintaPalabra;
+	int contLetrasQuintaPalabra = 0;
+	int finPalabra5;
+	
+	//Variables de la palabra 3 string 2
+	int inicioSextaPalabra;
+	int contLetrasSextaPalabra = 0;
+	int finPalabra6;
+	
+	//Variables de la última palabra
+	int inicioSeptimaPalabra;
+	int contLetrasSeptimaPalabra = 0;
+	int finPalabra7;
+	
+	int firstSentenceCompleted = 0;
 	
 	
 	for(int i = 1; i < argc; i++){
         
 		char *elemento = argv[i];
-		
         for(int j = 0; elemento[j] != '\0'; j++){
 			buffer[pos++] = elemento[j];
 		}
-		
         buffer[pos++] = ' '; //Añadimos espacio al buffer por cada elemento para poder iterar y sacar el 3 valor del string (elemento)
     }
 	
     buffer[pos] = '\0';
-	
+
     for(int j = 0; buffer[j] != '\0'; j++){
 		
-        if(buffer[j] == ','){
-            cont++;
-			
-            if(cont == 1){
-				
-                for(int a = 0; a < j; a++){
-					nombreUsuario1[a] = buffer[a];
+        if(buffer[j] == ',' || (contadorDePalabras == 5 && buffer[j] == ' ')){
+			contadorDePalabras++;
+
+			if(contadorDePalabras == 1 && firstSentenceCompleted == 0){
+				for(int inicioPrimeraPalabra = 0; buffer[inicioPrimeraPalabra] != ','; inicioPrimeraPalabra++){
+					nombreUsuario1[contLetrasPrimeraPalabra++] = buffer[inicioPrimeraPalabra];
 				}
-                nombreUsuario1[j] = '\0';
-                finPalabra1 = j + 1;
+				nombreUsuario1[contLetrasPrimeraPalabra] = '\0';
+				finPalabra1 = contLetrasPrimeraPalabra + 1;
+				
+			}else if(contadorDePalabras == 2){
+				for(inicioSegundaPalabra = finPalabra1; buffer[inicioSegundaPalabra] != ','; inicioSegundaPalabra++){
+					ataqueUsuario1[contLetrasSegundaPalabra++] = buffer[inicioSegundaPalabra];
+				}
+				ataqueUsuario1[contLetrasSegundaPalabra] = '\0';
+				finPalabra2 = inicioSegundaPalabra + 1;
+				
+			}else if(contadorDePalabras == 3){
+				for(inicioTerceraPalabra = finPalabra2; buffer[inicioTerceraPalabra] != ' '; inicioTerceraPalabra++){
+					elementoUsuario1[contLetrasTerceraPalabra++] = buffer[inicioTerceraPalabra];
+				} 
+				
+				elementoUsuario1[contLetrasTerceraPalabra] = '\0';
+				finPalabra3 = inicioTerceraPalabra + 1;
+				contadorDePalabras++; //Sumamos 1 al contador de palabras (comas) para que pueda leer el resto de palabras de los strings porque si no no lo va a leer debido al espacio (no hay coma)
+				firstSentenceCompleted = 1;
+			}
             
-			} else if(cont == 2){
-				
-                int k = 0;
-                for(int b = finPalabra1; b < j; b++){
-					ataqueUsuario1[k++] = buffer[b];
+			if(contadorDePalabras == 4 && firstSentenceCompleted == 1){
+				for(inicioCuartaPalabra = finPalabra3; buffer[inicioCuartaPalabra] != ','; inicioCuartaPalabra++){
+					nombreUsuario2[contLetrasCuartaPalabra++] = buffer[inicioCuartaPalabra];
 				}
-                ataqueUsuario1[k] = '\0';
-                finPalabra2 = j + 1;
-            }
-        }
-    
+				
+				nombreUsuario2[contLetrasCuartaPalabra] = '\0';
+				finPalabra4 = inicioCuartaPalabra + 1;
+			
+			}else if(contadorDePalabras == 5 && firstSentenceCompleted == 1){
+				for(inicioQuintaPalabra = finPalabra4; buffer[inicioQuintaPalabra] != ','; inicioQuintaPalabra++){
+					ataqueUsuario2[contLetrasQuintaPalabra++] = buffer[inicioQuintaPalabra];
+				}
+				
+				ataqueUsuario2[contLetrasQuintaPalabra] = '\0';
+				finPalabra5 = inicioQuintaPalabra + 1;
+
+			}
+		}
+		
+		//Revisar método
+		if(contadorDePalabras == 6 && firstSentenceCompleted == 1){
+			while(buffer[finPalabra5] != ' ' && buffer[finPalabra5] != '\0'){
+				elementoUsuario2[contLetrasSextaPalabra++] = buffer[finPalabra5++];
+			}
+			elementoUsuario2[contLetrasSextaPalabra] = '\0';
+			finPalabra6 = inicioSextaPalabra + 1;
+			contadorDePalabras++;
+		}
 	}
-	
-    int contElemento = 0;
-    for(int b = finPalabra2; buffer[b] != '\0' && buffer[b] != ' '; b++){
-		elementoUsuario1[contElemento++] = buffer[b];
-	}
-    elementoUsuario1[contElemento] = '\0';
 	
 	printf("Nombre de usuario 1-> %s \n", nombreUsuario1);
 	printf("Ataque de usuario 1-> %s \n", ataqueUsuario1);
 	printf("Elemento de usuario 1-> %s \n", elementoUsuario1);
-	
-	//ensenaMenu();
-	
-	
-	//printf("Primer parametro -> %s \n Segundo parametro -> %s \n Tercer parametro -> %s", primerArgumento, segundoArgumento, tercerArgumento);
-	
+	printf("Nombre de usuario 2-> %s \n", nombreUsuario2);
+	printf("Ataque de usuario 2-> %s \n", ataqueUsuario2);
+	printf("Elemento de usuario 2-> %s \n", elementoUsuario2);
+
+		
 	//2. Inicializamos struct de magos
 	
 	//3. Creación del panel e introducción del mismo en un bucle
-	
+		//ensenaMenu();
+
 	//4. Inicialización de las funciones obligatorias por cada opción + energia
 	
 	//5. Inicialización de función random para el ataque de la maquina
