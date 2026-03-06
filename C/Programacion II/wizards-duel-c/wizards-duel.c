@@ -70,6 +70,14 @@ La función devolverá el daño causado según el elemento:
 #include <stdlib.h> 
 #include <time.h>
 
+typedef struct {
+	char nombre[10];
+	int potencia; //Revisar logica para potencia negativa
+	char elemento[5];
+	int vida;
+	int energia; //Revisar que está inicializada a 500J
+} Mago;
+
 void ensenaMenu();
 int main(int argc, char* argv[]){
 	
@@ -80,7 +88,7 @@ int main(int argc, char* argv[]){
 		return 1;
 	}
 	
-	char nombreUsuario1[100];
+	char nombreUsuario1[10];
 	char ataqueUsuario1[10];
 	char elementoUsuario1[50];
 	
@@ -94,7 +102,7 @@ int main(int argc, char* argv[]){
 	int pos = 0;
 	
 	//Variables de la palabra 1 string 1
-	int contadorDePalabras = 0; //cont
+	int contadorDePalabras = 0;
 	int contLetrasPrimeraPalabra = 0; 
 	int finPalabra1;
 	
@@ -126,10 +134,9 @@ int main(int argc, char* argv[]){
 	//Variables de la última palabra
 	int inicioSeptimaPalabra;
 	int contLetrasSeptimaPalabra = 0;
-	int finPalabra7;
-	
+		
 	int firstSentenceCompleted = 0;
-	
+	int secondSentenceCompleted = 0;
 	
 	for(int i = 1; i < argc; i++){
         
@@ -191,26 +198,55 @@ int main(int argc, char* argv[]){
 			}
 		}
 		
-		//Revisar método
-		if(contadorDePalabras == 6 && firstSentenceCompleted == 1){
-			while(buffer[finPalabra5] != ' ' && buffer[finPalabra5] != '\0'){
-				elementoUsuario2[contLetrasSextaPalabra++] = buffer[finPalabra5++];
+		if(buffer[j] == ' '){
+			if(contadorDePalabras == 6 && firstSentenceCompleted == 1){
+				while(buffer[finPalabra5] != ' ' && buffer[finPalabra5] != '\0'){
+					elementoUsuario2[contLetrasSextaPalabra++] = buffer[finPalabra5++];
+				}
+				elementoUsuario2[contLetrasSextaPalabra] = '\0';
+				finPalabra6 = finPalabra5 + 1;
+				secondSentenceCompleted = 1;
+				contadorDePalabras++;
 			}
-			elementoUsuario2[contLetrasSextaPalabra] = '\0';
-			finPalabra6 = inicioSextaPalabra + 1;
-			contadorDePalabras++;
+		
+			if(contadorDePalabras == 7 && firstSentenceCompleted && secondSentenceCompleted){
+
+				for(inicioSeptimaPalabra = finPalabra6; buffer[inicioSeptimaPalabra] != ' ' && buffer[inicioSeptimaPalabra] != '\0'; inicioSeptimaPalabra++){
+					energia[contLetrasSeptimaPalabra++] = buffer[inicioSeptimaPalabra];
+				}
+
+				energia[contLetrasSeptimaPalabra] = '\0';
+				secondSentenceCompleted = 0;
+				break;  
+			}
 		}
+		
 	}
 	
-	printf("Nombre de usuario 1-> %s \n", nombreUsuario1);
-	printf("Ataque de usuario 1-> %s \n", ataqueUsuario1);
-	printf("Elemento de usuario 1-> %s \n", elementoUsuario1);
-	printf("Nombre de usuario 2-> %s \n", nombreUsuario2);
-	printf("Ataque de usuario 2-> %s \n", ataqueUsuario2);
-	printf("Elemento de usuario 2-> %s \n", elementoUsuario2);
+	//printf("Nombre de usuario 1-> %s \n", nombreUsuario1);
+	//printf("Ataque de usuario 1-> %s \n", ataqueUsuario1);
+	//printf("Elemento de usuario 1-> %s \n", elementoUsuario1);
+	//printf("Nombre de usuario 2-> %s \n", nombreUsuario2);
+	//printf("Ataque de usuario 2-> %s \n", ataqueUsuario2);
+	//printf("Elemento de usuario 2-> %s \n", elementoUsuario2);
+	//printf("Energia -> %s\n", energia);
 
 		
 	//2. Inicializamos struct de magos
+	
+	Mago magoPersona;
+	Mago magoMaquina;
+	
+	for(int letraNombre = 0; letraNombre < 10; letraNombre++){
+		//Revisar cortar longitud de nombre cuando se sobrepasa 
+		magoPersona.nombre[letraNombre] = nombreUsuario1[letraNombre];
+		magoMaquina.nombre[letraNombre] = nombreUsuario2[letraNombre];
+	}
+	magoPersona.nombre[10] = '\0'; 
+	magoMaquina.nombre[10] = '\0';
+	
+	printf("Mago persona nombre -> %s \n", magoPersona.nombre);
+	printf("Mago maquina nombre -> %s \n", magoMaquina.nombre);
 	
 	//3. Creación del panel e introducción del mismo en un bucle
 		//ensenaMenu();
