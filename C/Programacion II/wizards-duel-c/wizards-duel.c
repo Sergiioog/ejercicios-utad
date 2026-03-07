@@ -2,22 +2,22 @@
 Programa que simule un duelo de magos (usuario y máquina).
 -------------------------------------------------------------
 
-El programa deberá además permitir mostrar la energía en distintas unidades mediante una función de conversión.
+El programa deberá además permitir mostrar la energía en distintas unidades mediante una función de conversión. 
 
 El programa se ejecutará desde línea de comandos de la siguiente forma:
-./magos.exe Gandalf,20,fuego Saruman,15,hielo kJ
+./magos.exe Gandalf,20,fuego Saruman,15,hielo kJ -> HECHO
 
-El programa recibirá tres argumentos:
+El programa recibirá tres argumentos: -> HECHO
 	1. Datos del mago del usuario en formato: NOMBRE,POTENCIA,ELEMENTO
-	2. Datos del mago de la máquina en el mismo formato.
-	3. Unidad para mostrar la energía: "J" o "kJ"
+	2. Datos del mago de la máquina en el mismo formato. 
+	3. Unidad para mostrar la energía: "J" o "kJ" 
 
-Cada mago tendrá:
-	• Nombre (hasta 10 caracteres)
-	• Potencia (entero positivo)
-	• Elemento (fuego o hielo)
+Cada mago tendrá: -> HECHO
+	• Nombre (hasta 10 caracteres) 
+	• Potencia (entero positivo) 
+	• Elemento (fuego o hielo) //PDTE: METER LOGICA PARA SABER SI NO ES UNA DE ESTAS DOS
 	• Vida (inicialmente 100)
-	• Energía (inicialmente 500 J)
+	• Energía (inicialmente 500 J) 
 
 El combate se desarrolla por turnos hasta que uno de los magos quede sin vida (vida ≤ 0).
 
@@ -45,8 +45,8 @@ Funciones obligatorias
 1. Conversión de energía:
 	double convertir_energia(ConversionInfo_t conversion);
 
-La estructura de conversión deberá incluir:
-	• el dato a convertir
+La estructura de conversión deberá incluir: -> HECHO
+	• el dato a convertir 
 	• la unidad de entrada
 	• la unidad de salida
 
@@ -71,13 +71,21 @@ La función devolverá el daño causado según el elemento:
 #include <time.h>
 
 typedef struct {
+	double datoAConvertir;
+	char unidadEntrada[10];
+	char unidadSalida[10];
+} ConversionInfo_t;
+
+typedef struct {
 	char nombre[10];
-	int potencia; //Revisar logica para potencia negativa
+	int potencia; 
 	char elemento[5];
 	int vida;
-	int energia; //Revisar que está inicializada a 500J
-} Mago;
+	ConversionInfo_t energia; 
+} Mago_t;
 
+double convertir_energia(ConversionInfo_t conversion);
+//calcular_danio();
 void ensenaMenu();
 int main(int argc, char* argv[]){
 	
@@ -222,31 +230,79 @@ int main(int argc, char* argv[]){
 		}
 		
 	}
-	
-	//printf("Nombre de usuario 1-> %s \n", nombreUsuario1);
-	//printf("Ataque de usuario 1-> %s \n", ataqueUsuario1);
-	//printf("Elemento de usuario 1-> %s \n", elementoUsuario1);
-	//printf("Nombre de usuario 2-> %s \n", nombreUsuario2);
-	//printf("Ataque de usuario 2-> %s \n", ataqueUsuario2);
-	//printf("Elemento de usuario 2-> %s \n", elementoUsuario2);
-	//printf("Energia -> %s\n", energia);
-
 		
 	//2. Inicializamos struct de magos
 	
-	Mago magoPersona;
-	Mago magoMaquina;
-	
+	Mago_t magoPersona;
+	Mago_t magoMaquina;	
+
 	for(int letraNombre = 0; letraNombre < 10; letraNombre++){
-		//Revisar cortar longitud de nombre cuando se sobrepasa 
 		magoPersona.nombre[letraNombre] = nombreUsuario1[letraNombre];
 		magoMaquina.nombre[letraNombre] = nombreUsuario2[letraNombre];
 	}
 	magoPersona.nombre[10] = '\0'; 
 	magoMaquina.nombre[10] = '\0';
 	
+	magoPersona.potencia = atoi(ataqueUsuario1);
+	magoMaquina.potencia = atoi(ataqueUsuario2);
+	if(magoPersona.potencia <= 0 || magoMaquina.potencia <= 0){ 
+		printf("Potencia igual o menor 0 \n");
+		return 1;
+	}
+	
+	for(int letraElemento = 0; letraElemento < 5; letraElemento++){
+		magoPersona.elemento[letraElemento] = elementoUsuario1[letraElemento];
+		magoMaquina.elemento[letraElemento] = elementoUsuario2[letraElemento];
+	}
+	
+	magoPersona.elemento[5] = '\0';
+	magoMaquina.elemento[5] = '\0';
+	/*if((magoPersona.elemento != "fuego" || magoPersona.elemento != "hielo") && (magoMaquina.elemento != "fuego" || magoMaquina.elemento != "hielo")){
+		printf("Elemento diferente de 'fuego' o 'hielo'\n");
+		return 1; //Meter logica para saber diferenciaarlo
+	}*/
+	
+	//------------ Inicialización de vida ------------
+	magoPersona.vida = 100;
+	magoMaquina.vida = 100;
+	
+	//------------ Inicialización y Conversión de energía ------------
+	magoPersona.energia.datoAConvertir = 500;
+	for (int i = 0; i < 10; i++) {
+		magoPersona.energia.unidadEntrada[i] = energia[i];
+	}
+	
+	if (magoPersona.energia.unidadEntrada[0] == 'J' && magoPersona.energia.unidadEntrada[1] == '\0') {
+		magoPersona.energia.unidadSalida[0] = 'k';
+		magoPersona.energia.unidadSalida[1] = 'J';
+		magoPersona.energia.unidadSalida[2] = '\0';
+
+	} else if (magoPersona.energia.unidadEntrada[0] == 'k' && magoPersona.energia.unidadEntrada[1] == 'J' && magoPersona.energia.unidadEntrada[2] == '\0') {
+		magoPersona.energia.unidadSalida[0] = 'J';
+		magoPersona.energia.unidadSalida[1] = '\0';
+	
+	}else {
+		printf("Unidad no permitida, usa J o kJ \n");
+		return 1;
+	}
+	
+	magoPersona.energia.datoAConvertir = convertir_energia(magoPersona.energia);
+	
+
 	printf("Mago persona nombre -> %s \n", magoPersona.nombre);
-	printf("Mago maquina nombre -> %s \n", magoMaquina.nombre);
+	printf("Mago persona potencia -> %d \n", magoPersona.potencia);
+	printf("Mago persona elemento -> %s \n", magoPersona.elemento);
+	printf("Mago persona vida -> %d \n", magoPersona.vida);
+	printf("Mago persona energia datoAConvertir -> %.1f \n", magoPersona.energia.datoAConvertir);
+	printf("Mago persona energia unidadEntrada -> %s \n", magoPersona.energia.unidadEntrada);
+	printf("Mago persona energia unidadSalida -> %s \n", magoPersona.energia.unidadSalida);
+	
+	/*printf("Mago maquina nombre -> %s \n", magoMaquina.nombre);
+	printf("Mago maquina potencia -> %d \n", magoMaquina.potencia);
+	printf("Mago maquina elemento -> %s \n", magoMaquina.elemento);
+	printf("Mago maquina vida -> %d \n", magoMaquina.vida);
+	printf("Mago maquina energia -> %d \n", magoMaquina.energia);*/
+	
 	
 	//3. Creación del panel e introducción del mismo en un bucle
 		//ensenaMenu();
@@ -258,6 +314,18 @@ int main(int argc, char* argv[]){
 	//6. Resto de lógica
 
 	return 0;
+}
+
+double convertir_energia(ConversionInfo_t conversion){
+	
+	double energiaInicial = conversion.datoAConvertir;
+	
+	if(conversion.unidadEntrada[0] == 'k' && conversion.unidadEntrada[1] == 'J' && conversion.unidadEntrada[2] == '\0'){
+		printf("La unidad de entrada es kj");
+		energiaInicial = conversion.datoAConvertir / 1000.0;
+	}
+
+	return energiaInicial;
 }
 
 void ensenaMenu(){
