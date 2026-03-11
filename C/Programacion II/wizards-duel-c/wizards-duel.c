@@ -8,24 +8,25 @@ El programa se ejecutará desde línea de comandos de la siguiente forma:
 ./magos.exe Gandalf,20,fuego Saruman,15,hielo kJ -> HECHO
 
 El programa recibirá tres argumentos: -> HECHO
-	1. Datos del mago del usuario en formato: NOMBRE,POTENCIA,ELEMENTO
-	2. Datos del mago de la máquina en el mismo formato. 
-	3. Unidad para mostrar la energía: "J" o "kJ" 
+	1. Datos del mago del usuario en formato: NOMBRE,POTENCIA,ELEMENTO -> HECHO
+	2. Datos del mago de la máquina en el mismo formato. -> HECHO
+	3. Unidad para mostrar la energía: "J" o "kJ"  -> HECHO
 
 Cada mago tendrá: -> HECHO
-	• Nombre (hasta 10 caracteres) 
-	• Potencia (entero positivo) 
+	• Nombre (hasta 10 caracteres) -> HECHO
+	• Potencia (entero positivo) -> HECHO
 	• Elemento (fuego o hielo) //PDTE: METER LOGICA PARA SABER SI NO ES UNA DE ESTAS DOS
-	• Vida (inicialmente 100)
-	• Energía (inicialmente 500 J) 
+	• Vida (inicialmente 100) -> HECHO
+	• Energía (inicialmente 500 J) -> HECHO
 
 El combate se desarrolla por turnos hasta que uno de los magos quede sin vida (vida ≤ 0).
 
 En cada turno el usuario podrá elegir:
-1. Atacar
-	o Consume 100 J.
-	o El daño se calculará mediante la función obligatoria calcular_danio().
-	o Si el mago no tiene suficiente energía para atacar, se mostrará un mensaje de error y se deberá elegir otra opción.
+
+1. Atacar -> HECHO
+	o Consume 100 J. -> HECHO
+	o El daño se calculará mediante la función obligatoria calcular_danio(). -> HECHO
+	o Si el mago no tiene suficiente energía para atacar, se mostrará un mensaje de error y se deberá elegir otra opción. -> HECHO
 
 2. Recargar energía
 	o Recupera 150 J (no puede superar los 500 J la energía del mago).
@@ -42,23 +43,23 @@ Para la toma de decisiones de la máquina deberá utilizarse aleatoriedad (rand(
 Deben utilizarse las estructuras, enumerados (y otros tipos si se consideran necesarios) para modelar los datos del problema.
 
 Funciones obligatorias
-1. Conversión de energía:
-	double convertir_energia(ConversionInfo_t conversion);
+1. Conversión de energía: -> HECHO
+	double convertir_energia(ConversionInfo_t conversion); -> HECHO
 
 La estructura de conversión deberá incluir: -> HECHO
-	• el dato a convertir 
-	• la unidad de entrada
-	• la unidad de salida
+	• el dato a convertir -> HECHO 
+	• la unidad de entrada -> HECHO
+	• la unidad de salida -> HECHO
 
 Equivalencia:
-• 1 kJ = 1000 J
+• 1 kJ = 1000 J -> HECHO
 
-2. Cálculo de daño:
-	int calcular_danio(Mago_t atacante);
+2. Cálculo de daño: -> HECHO
+	int calcular_danio(Mago_t atacante); -> HECHO
 
-La función devolverá el daño causado según el elemento:
-• FUEGO → potencia + 5
-• HIELO → potencia * 2
+La función devolverá el daño causado según el elemento: -> HECHO
+• FUEGO → potencia + 5 -> HECHO
+• HIELO → potencia * 2 -> HECHO
 */
 
 
@@ -86,6 +87,7 @@ typedef struct {
 
 double convertir_energia(ConversionInfo_t conversion);
 void ensenaMenu();
+int calcular_danio(Mago_t atacante);
 int main(int argc, char* argv[]){
 	
 	//1. Introducimos parámetros por argv y verificamos si son correctos en cuanto a cantidad y sintaxis
@@ -295,9 +297,10 @@ int main(int argc, char* argv[]){
 	
 	}
 	
-	magoPersona.energia = convertir_energia(energiaMagos); //Seteamos valor de la energia a cada instancia
+	magoPersona.energia = convertir_energia(energiaMagos);
 	magoMaquina.energia = convertir_energia(energiaMagos);
 	
+
 	/*printf("=== magoPersona ===\n");
 	printf("Nombre:   %s\n", magoPersona.nombre);
 	printf("Potencia: %d\n", magoPersona.potencia);
@@ -317,11 +320,69 @@ int main(int argc, char* argv[]){
 	//3. Creación del panel e introducción del mismo en un bucle
 	
 	int respuesta;
+	int userNameChecked = 0;
+	int magoEnergia = 0;
+	int turnoValido = 0;
+
 	while(1){
+		turnoValido = 0; //Se resetea al inicio de cada iteracion
+
+		if(userNameChecked == 0){
+			printf("Turno de %s \n", magoPersona.nombre);
+		}else {
+			printf("Turno de %s \n", magoMaquina.nombre);
+		}
+		
 		ensenaMenu();
 		scanf("%d", &respuesta);
-		if(respuesta == 2){
-			return 1;
+		
+		switch(respuesta){
+			case 1:
+				if(userNameChecked == 0){  
+					magoEnergia = calcular_danio(magoPersona);
+					
+					if((int)magoPersona.energia < magoEnergia ){ //Revisar esto <= 100
+						printf("El mago %s no tiene suficiente energia para atacar \n", magoPersona.nombre);
+						
+					}else{
+						printf("%s ataca y causa %d de danio\n", magoPersona.nombre, magoEnergia);
+						magoPersona.energia = magoPersona.energia - magoEnergia;
+
+						magoMaquina.vida = magoMaquina.vida - 20; //Cambiar por dato random
+						turnoValido = 1; //turno existoso
+					}
+					
+				}else{
+					magoEnergia = calcular_danio(magoMaquina);
+
+					if((int)magoMaquina.energia < magoEnergia){ // <= 100
+						printf("El mago %s no tiene suficiente energia para atacar \n", magoMaquina.nombre);
+					}else{
+						printf("%s ataca y causa %d de danio\n", magoMaquina.nombre, magoEnergia);
+						magoMaquina.energia = magoMaquina.energia - magoEnergia;
+						magoPersona.vida = magoPersona.vida - 20;
+						turnoValido = 1;
+					}
+				}
+				break;
+				
+			case 2:
+				printf("Opcion 2 seleccionada\n");
+				turnoValido = 1;
+				break;
+				
+			case 3:
+				printf("Opcion 3 seleccionada\n");
+				turnoValido = 1;
+				break;
+				
+			default:
+				printf("Opcion no valida\n");
+				break;
+		}
+
+		if(turnoValido == 1){
+			userNameChecked = (userNameChecked == 0) ? 1 : 0; //Ternario, por eficiencia usado en vez de if else anidado
 		}
 	}
 
@@ -346,7 +407,34 @@ double convertir_energia(ConversionInfo_t conversion){
 }
 
 void ensenaMenu(){
+	
+	printf("-----------------------\n");
 	printf("1) atacar \n");
 	printf("2) recargar energia \n");
 	printf("3) mostrar estado \n");
+	printf("-----------------------\n");
 }
+
+
+int calcular_danio(Mago_t atacante){
+		
+	int energiaAtacante = 0; 
+	
+	if(atacante.elemento[0] == 'f' 
+	&& atacante.elemento[1] == 'u' 
+	&& atacante.elemento[2] == 'e' 
+	&& atacante.elemento[3] == 'g' 
+	&& atacante.elemento[4] == 'o' 
+	&& atacante.elemento[5] == '\0'){
+		
+		energiaAtacante = atacante.potencia + 5;
+
+	}else{
+		
+		energiaAtacante = atacante.potencia * 2;
+	
+	}
+	
+	return energiaAtacante;	
+}
+
