@@ -299,32 +299,15 @@ int main(int argc, char* argv[]){
 	
 	magoPersona.energia = convertir_energia(energiaMagos);
 	magoMaquina.energia = convertir_energia(energiaMagos);
-	
-
-	/*printf("=== magoPersona ===\n");
-	printf("Nombre:   %s\n", magoPersona.nombre);
-	printf("Potencia: %d\n", magoPersona.potencia);
-	printf("Elemento: %s\n", magoPersona.elemento);
-	printf("Vida:     %d\n", magoPersona.vida);
-	printf("Energia:  %.1f\n", magoPersona.energia);
-
-	printf("\n=== magoMaquina ===\n");
-	printf("Nombre:   %s\n", magoMaquina.nombre);
-	printf("Potencia: %d\n", magoMaquina.potencia);
-	printf("Elemento: %s\n", magoMaquina.elemento);
-	printf("Vida:     %d\n", magoMaquina.vida);
-	printf("Energia:  %.1f\n", magoMaquina.energia);*/
-
-	
-	
+		
 	//3. Creación del panel e introducción del mismo en un bucle
 	
 	int respuesta;
 	int userNameChecked = 0;
-	int magoEnergia = 0;
+	int magoDano = 0;
 	int turnoValido = 0;
 
-	while(1){
+	while(magoPersona.vida > 0 && magoMaquina.vida > 0){
 		turnoValido = 0; //Se resetea al inicio de cada iteracion
 
 		if(userNameChecked == 0){
@@ -339,28 +322,27 @@ int main(int argc, char* argv[]){
 		switch(respuesta){
 			case 1:
 				if(userNameChecked == 0){  
-					magoEnergia = calcular_danio(magoPersona);
+					magoDano = calcular_danio(magoPersona);
 					
-					if((int)magoPersona.energia < magoEnergia ){ //Revisar esto <= 100
+					if((int)magoPersona.energia < magoDano ){
 						printf("El mago %s no tiene suficiente energia para atacar \n", magoPersona.nombre);
 						
 					}else{
-						printf("%s ataca y causa %d de danio\n", magoPersona.nombre, magoEnergia);
-						magoPersona.energia = magoPersona.energia - magoEnergia;
-
-						magoMaquina.vida = magoMaquina.vida - 20; //Cambiar por dato random
+						printf("%s ataca y causa %d de danio\n", magoPersona.nombre, magoDano);
+						magoPersona.energia = magoPersona.energia - magoDano;
+						magoMaquina.vida = magoMaquina.vida - magoDano; 
 						turnoValido = 1; //turno existoso
 					}
 					
 				}else{
-					magoEnergia = calcular_danio(magoMaquina);
+					magoDano = calcular_danio(magoMaquina);
 
-					if((int)magoMaquina.energia < magoEnergia){ // <= 100
+					if((int)magoMaquina.energia < magoDano){ 
 						printf("El mago %s no tiene suficiente energia para atacar \n", magoMaquina.nombre);
 					}else{
-						printf("%s ataca y causa %d de danio\n", magoMaquina.nombre, magoEnergia);
-						magoMaquina.energia = magoMaquina.energia - magoEnergia;
-						magoPersona.vida = magoPersona.vida - 20;
+						printf("%s ataca y causa %d de danio\n", magoMaquina.nombre, magoDano);
+						magoMaquina.energia = magoMaquina.energia - magoDano;
+						magoPersona.vida = magoPersona.vida - magoDano; 
 						turnoValido = 1;
 					}
 				}
@@ -368,11 +350,48 @@ int main(int argc, char* argv[]){
 				
 			case 2:
 				printf("Opcion 2 seleccionada\n");
+				//o Recupera 150 J (no puede superar los 500 J la energía del mago).
+				int diferencia = 0;
+				
+				if(userNameChecked == 0){
+					
+					magoPersona.energia = magoPersona.energia + 150;
+					
+					if((int)magoPersona.energia > 500){
+						diferencia = (int)magoPersona.energia - 500;
+						magoPersona.energia = (int)magoPersona.energia - diferencia;
+						printf("El mago %s ha alcanzado el limite maximo de energia: %.1f J\n", magoPersona.nombre, magoPersona.energia);
+					
+					}else{
+						printf("El mago %s ha recargado energia. Energia actual: %.1f J\n", magoPersona.nombre, magoPersona.energia);					
+					}
+					
+				
+				}else{
+					
+					magoMaquina.energia = magoMaquina.energia + 150;
+					
+					if((int)magoMaquina.energia > 500){
+						diferencia = (int)magoMaquina.energia - 500;
+						magoMaquina.energia = (int)magoMaquina.energia - diferencia;
+						printf("El mago %s ha alcanzado el limite maximo de energia: %.1f J\n", magoMaquina.nombre, magoMaquina.energia);
+					
+					}else{
+						printf("El mago %s ha recargado energia. Energia actual: %.1f J\n", magoMaquina.nombre, magoMaquina.energia);					
+					}
+				}
+				
 				turnoValido = 1;
 				break;
 				
 			case 3:
 				printf("Opcion 3 seleccionada\n");
+				//Muestra vida y energía (la energía se mostrará en la unidad indicada por el tercer argumento usando la función convertir_energia()).
+				
+				printf("--- estado ---\n");
+				printf("nombre: %s | vida: %d | energia: %.2f | elemento: %s | potencia: %d \n", magoPersona.nombre, magoPersona.vida, magoPersona.energia, magoPersona.elemento, magoPersona.potencia);
+				printf("nombre: %s | vida: %d | energia: %.2f | elemento: %s | potencia: %d \n", magoMaquina.nombre, magoMaquina.vida, magoMaquina.energia, magoMaquina.elemento, magoMaquina.potencia);
+				printf("--------------\n");
 				turnoValido = 1;
 				break;
 				
@@ -385,15 +404,25 @@ int main(int argc, char* argv[]){
 			userNameChecked = (userNameChecked == 0) ? 1 : 0; //Ternario, por eficiencia usado en vez de if else anidado
 		}
 	}
+	
+	printf("=== fin del duelo ===\n");
+	if(magoPersona.vida == 0){
+		printf("ganador: %s\n", magoMaquina.nombre);
+	}else{
+		printf("ganador: %s\n", magoPersona.nombre);
+	}
 
-	//4. Inicialización de las funciones obligatorias por cada opción + energia
 	
 	//5. Inicialización de función random para el ataque de la maquina
 	
-	//6. Resto de lógica
-
 	return 0;
 }
+
+//TODO: Revisar logica para cuando la unidad es kJ modificar la energia en el programa
+//TODO: Revisar que solo se pueda meter "fuego" o "hielo" cualquier otra cosa -> return 1;
+
+
+//4. Inicialización de las funciones obligatorias por cada opción + energia
 
 double convertir_energia(ConversionInfo_t conversion){
 	
