@@ -15,7 +15,7 @@ El programa recibirá tres argumentos: -> HECHO
 Cada mago tendrá: -> HECHO
 	• Nombre (hasta 10 caracteres) -> HECHO
 	• Potencia (entero positivo) -> HECHO
-	• Elemento (fuego o hielo) //PDTE: METER LOGICA PARA SABER SI NO ES UNA DE ESTAS DOS
+	• Elemento (fuego o hielo) -> HECHO
 	• Vida (inicialmente 100) -> HECHO
 	• Energía (inicialmente 500 J) -> HECHO
 
@@ -80,7 +80,7 @@ typedef struct {
 typedef struct {
 	char nombre[10];
 	int potencia; 
-	char elemento[5];
+	char elemento[6];
 	int vida;
 	double energia;
 } Mago_t;
@@ -246,66 +246,97 @@ int main(int argc, char* argv[]){
 	
 	magoPersona.potencia = atoi(ataqueUsuario1);
 	magoMaquina.potencia = atoi(ataqueUsuario2);
+	
 	if(magoPersona.potencia <= 0 || magoMaquina.potencia <= 0){ 
 		printf("Potencia igual o menor 0 \n");
 		return 1;
 	}
 	
-	for(int letraElemento = 0; letraElemento < 5; letraElemento++){
+	for(int letraElemento = 0; letraElemento < 6; letraElemento++){
 		magoPersona.elemento[letraElemento] = elementoUsuario1[letraElemento];
 		magoMaquina.elemento[letraElemento] = elementoUsuario2[letraElemento];
 	}
 	
-	magoPersona.elemento[5] = '\0';
-	magoMaquina.elemento[5] = '\0';
-	/*if((magoPersona.elemento != "fuego" || magoPersona.elemento != "hielo") && (magoMaquina.elemento != "fuego" || magoMaquina.elemento != "hielo")){
-		printf("Elemento diferente de 'fuego' o 'hielo'\n");
-		return 1; //Meter logica para saber diferenciaarlo
-	}*/
+	magoPersona.elemento[6] = '\0';
+	magoMaquina.elemento[6] = '\0';
 	
+	int esFuego1 = (magoPersona.elemento[0] == 'f' &&
+					magoPersona.elemento[1] == 'u' &&
+					magoPersona.elemento[2] == 'e' &&
+					magoPersona.elemento[3] == 'g' &&
+					magoPersona.elemento[4] == 'o' &&
+					magoPersona.elemento[5] == '\0');
+
+	int esHielo1 = (magoPersona.elemento[0] == 'h' &&
+					magoPersona.elemento[1] == 'i' &&
+					magoPersona.elemento[2] == 'e' &&
+					magoPersona.elemento[3] == 'l' &&
+					magoPersona.elemento[4] == 'o' &&
+					magoPersona.elemento[5] == '\0');
+
+	if(!esFuego1 && !esHielo1){
+		printf("Elemento de mago 1 invalido. Usa 'fuego' o 'hielo'\n");
+		return 1;
+	}
+
+	int esFuego2 = (magoMaquina.elemento[0] == 'f' &&
+					magoMaquina.elemento[1] == 'u' &&
+					magoMaquina.elemento[2] == 'e' &&
+					magoMaquina.elemento[3] == 'g' &&
+					magoMaquina.elemento[4] == 'o' &&
+					magoMaquina.elemento[5] == '\0');
+
+	int esHielo2 = (magoMaquina.elemento[0] == 'h' &&
+					magoMaquina.elemento[1] == 'i' &&
+					magoMaquina.elemento[2] == 'e' &&
+					magoMaquina.elemento[3] == 'l' &&
+					magoMaquina.elemento[4] == 'o' &&
+					magoMaquina.elemento[5] == '\0');
+
+	if(!esFuego2 && !esHielo2){
+		printf("Elemento de mago 2 invalido. Usa 'fuego' o 'hielo'\n");
+		return 1;
+	}
+		
 	//------------ Inicialización de vida ------------
 	magoPersona.vida = 100;
 	magoMaquina.vida = 100;
 	
 	//------------ Inicialización y Conversión de energía ------------
 	
-	ConversionInfo_t energiaMagos; //Inicializamos el struct de energia y damos valores a los campos
-	energiaMagos.datoAConvertir = 500; //Inicialmente 500J
 	
-	if (unidadEnergia[0] == 'J' && unidadEnergia[1] == '\0') { //Comprobamos en base a si es J o kJ
-		
-		energiaMagos.unidadEntrada[0] = 'J';
-		energiaMagos.unidadEntrada[1] = '\0';
+	double costeAtaque;
+	double limiteEnergia;
+	double recarga;
 
-		energiaMagos.unidadSalida[0] = 'k';
-		energiaMagos.unidadSalida[1] = 'J';
-		energiaMagos.unidadSalida[2] = '\0';
-
-	} else if (unidadEnergia[0] == 'k' && unidadEnergia[1] == 'J' && unidadEnergia[2] == '\0') {
-		
-		energiaMagos.unidadSalida[0] = 'J';
-		energiaMagos.unidadSalida[1] = '\0';
-
-		energiaMagos.unidadEntrada[0] = 'k';
-		energiaMagos.unidadEntrada[1] = 'J';
-		energiaMagos.unidadEntrada[2] = '\0';
-	
-	}else {
-		
-		printf("Unidad no permitida, usa J o kJ \n");
-		return 1;
-	
+	if(unidadEnergia[0] == 'k'){
+		costeAtaque = 0.1;
+		limiteEnergia = 0.5;
+		recarga = 0.15;
+	} else {
+		costeAtaque = 100;
+		limiteEnergia = 500;
+		recarga = 150;
 	}
-	
-	magoPersona.energia = convertir_energia(energiaMagos);
+
+	ConversionInfo_t energiaMagos;
+	energiaMagos.datoAConvertir = 500; // partimos de 500J
+	energiaMagos.unidadEntrada[0] = 'J';
+	energiaMagos.unidadEntrada[1] = '\0';
+	energiaMagos.unidadSalida[0] = unidadEnergia[0];
+	energiaMagos.unidadSalida[1] = unidadEnergia[1];
+	energiaMagos.unidadSalida[2] = '\0';
+
+	magoPersona.energia = convertir_energia(energiaMagos); 	// convertir_energia se encarga de dar 500 o 0.5 según la unidad
 	magoMaquina.energia = convertir_energia(energiaMagos);
-		
+			
 	//3. Creación del panel e introducción del mismo en un bucle
 	
 	int respuesta;
 	int userNameChecked = 0;
 	int magoDano = 0;
 	int turnoValido = 0;
+	int diferencia;
 
 	while(magoPersona.vida > 0 && magoMaquina.vida > 0){
 		turnoValido = 0; //Se resetea al inicio de cada iteracion
@@ -321,27 +352,27 @@ int main(int argc, char* argv[]){
 		
 		switch(respuesta){
 			case 1:
+			
 				if(userNameChecked == 0){  
 					magoDano = calcular_danio(magoPersona);
 					
-					if((int)magoPersona.energia < magoDano ){
+					if(magoPersona.energia < costeAtaque){
 						printf("El mago %s no tiene suficiente energia para atacar \n", magoPersona.nombre);
-						
 					}else{
 						printf("%s ataca y causa %d de danio\n", magoPersona.nombre, magoDano);
-						magoPersona.energia = magoPersona.energia - magoDano;
+						magoPersona.energia = magoPersona.energia - costeAtaque;  // se resta en la unidad correcta
 						magoMaquina.vida = magoMaquina.vida - magoDano; 
-						turnoValido = 1; //turno existoso
+						turnoValido = 1;
 					}
 					
 				}else{
 					magoDano = calcular_danio(magoMaquina);
-
-					if((int)magoMaquina.energia < magoDano){ 
+					
+					if(magoMaquina.energia < costeAtaque){
 						printf("El mago %s no tiene suficiente energia para atacar \n", magoMaquina.nombre);
 					}else{
 						printf("%s ataca y causa %d de danio\n", magoMaquina.nombre, magoDano);
-						magoMaquina.energia = magoMaquina.energia - magoDano;
+						magoMaquina.energia = magoMaquina.energia - costeAtaque;
 						magoPersona.vida = magoPersona.vida - magoDano; 
 						turnoValido = 1;
 					}
@@ -349,9 +380,7 @@ int main(int argc, char* argv[]){
 				break;
 				
 			case 2:
-				printf("Opcion 2 seleccionada\n");
-				//o Recupera 150 J (no puede superar los 500 J la energía del mago).
-				int diferencia = 0;
+				diferencia = 0;
 				
 				if(userNameChecked == 0){
 					
@@ -364,6 +393,7 @@ int main(int argc, char* argv[]){
 					
 					}else{
 						printf("El mago %s ha recargado energia. Energia actual: %.1f J\n", magoPersona.nombre, magoPersona.energia);					
+					
 					}
 					
 				
@@ -384,10 +414,7 @@ int main(int argc, char* argv[]){
 				turnoValido = 1;
 				break;
 				
-			case 3:
-				printf("Opcion 3 seleccionada\n");
-				//Muestra vida y energía (la energía se mostrará en la unidad indicada por el tercer argumento usando la función convertir_energia()).
-				
+			case 3:				
 				printf("--- estado ---\n");
 				printf("nombre: %s | vida: %d | energia: %.2f | elemento: %s | potencia: %d \n", magoPersona.nombre, magoPersona.vida, magoPersona.energia, magoPersona.elemento, magoPersona.potencia);
 				printf("nombre: %s | vida: %d | energia: %.2f | elemento: %s | potencia: %d \n", magoMaquina.nombre, magoMaquina.vida, magoMaquina.energia, magoMaquina.elemento, magoMaquina.potencia);
@@ -411,7 +438,6 @@ int main(int argc, char* argv[]){
 	}else{
 		printf("ganador: %s\n", magoPersona.nombre);
 	}
-
 	
 	//5. Inicialización de función random para el ataque de la maquina
 	
@@ -419,7 +445,6 @@ int main(int argc, char* argv[]){
 }
 
 //TODO: Revisar logica para cuando la unidad es kJ modificar la energia en el programa
-//TODO: Revisar que solo se pueda meter "fuego" o "hielo" cualquier otra cosa -> return 1;
 
 
 //4. Inicialización de las funciones obligatorias por cada opción + energia
@@ -428,7 +453,7 @@ double convertir_energia(ConversionInfo_t conversion){
 	
 	double energiaInicial = conversion.datoAConvertir;
 	
-	if(conversion.unidadEntrada[0] == 'k' && conversion.unidadEntrada[1] == 'J' && conversion.unidadEntrada[2] == '\0'){
+	if(conversion.unidadSalida[0] == 'k' && conversion.unidadSalida[1] == 'J' && conversion.unidadSalida[2] == '\0'){
 		energiaInicial = conversion.datoAConvertir / 1000.0;
 	}
 
@@ -436,7 +461,6 @@ double convertir_energia(ConversionInfo_t conversion){
 }
 
 void ensenaMenu(){
-	
 	printf("-----------------------\n");
 	printf("1) atacar \n");
 	printf("2) recargar energia \n");
@@ -455,11 +479,8 @@ int calcular_danio(Mago_t atacante){
 	&& atacante.elemento[3] == 'g' 
 	&& atacante.elemento[4] == 'o' 
 	&& atacante.elemento[5] == '\0'){
-		
 		energiaAtacante = atacante.potencia + 5;
-
 	}else{
-		
 		energiaAtacante = atacante.potencia * 2;
 	
 	}
