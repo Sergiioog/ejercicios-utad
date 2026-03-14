@@ -5,19 +5,19 @@ Programa que simule un duelo de magos (usuario y máquina).
 El programa deberá además permitir mostrar la energía en distintas unidades mediante una función de conversión. 
 
 El programa se ejecutará desde línea de comandos de la siguiente forma:
-./magos.exe Gandalf,20,fuego Saruman,15,hielo kJ -> HECHO
+./magos.exe Gandalf,20,fuego Saruman,15,hielo kJ 
 
-El programa recibirá tres argumentos: -> HECHO
-	1. Datos del mago del usuario en formato: NOMBRE,POTENCIA,ELEMENTO -> HECHO
-	2. Datos del mago de la máquina en el mismo formato. -> HECHO
-	3. Unidad para mostrar la energía: "J" o "kJ"  -> HECHO
+El programa recibirá tres argumentos:
+	1. Datos del mago del usuario en formato: NOMBRE,POTENCIA,ELEMENTO 
+	2. Datos del mago de la máquina en el mismo formato.
+	3. Unidad para mostrar la energía: "J" o "kJ"
 
-Cada mago tendrá: -> HECHO
-	• Nombre (hasta 10 caracteres) -> HECHO
-	• Potencia (entero positivo) -> HECHO
-	• Elemento (fuego o hielo) -> HECHO
-	• Vida (inicialmente 100) -> HECHO
-	• Energía (inicialmente 500 J) -> HECHO
+Cada mago tendrá: 
+	• Nombre (hasta 10 caracteres)
+	• Potencia (entero positivo) 
+	• Elemento (fuego o hielo)
+	• Vida (inicialmente 100)
+	• Energía (inicialmente 500 J)
 
 El combate se desarrolla por turnos hasta que uno de los magos quede sin vida (vida ≤ 0).
 
@@ -29,10 +29,10 @@ En cada turno el usuario podrá elegir:
 	o Si el mago no tiene suficiente energía para atacar, se mostrará un mensaje de error y se deberá elegir otra opción. -> HECHO
 
 2. Recargar energía
-	o Recupera 150 J (no puede superar los 500 J la energía del mago).
+	o Recupera 150 J (no puede superar los 500 J la energía del mago). -> HECHO
 
 3. Mostrar estado
-	o Muestra vida y energía (la energía se mostrará en la unidad indicada por el tercer argumento usando la función convertir_energia()).
+	o Muestra vida y energía (la energía se mostrará en la unidad indicada por el tercer argumento usando la función convertir_energia()). -> TODO: Mostrar en KJ
 
 La máquina actuará con probabilidad:
 	• 60% atacar (si tiene energía suficiente; en caso contrario recargará)
@@ -70,6 +70,8 @@ La función devolverá el daño causado según el elemento: -> HECHO
 #include <stdio.h>
 #include <stdlib.h> 
 #include <time.h>
+#include <stdlib.h>
+
 
 typedef struct {
 	double datoAConvertir;
@@ -86,6 +88,7 @@ typedef struct {
 } Mago_t;
 
 double convertir_energia(ConversionInfo_t conversion);
+int calculaAtaqueMaquina();
 void ensenaMenu();
 int calcular_danio(Mago_t atacante);
 int main(int argc, char* argv[]){
@@ -303,9 +306,38 @@ int main(int argc, char* argv[]){
 	magoMaquina.vida = 100;
 	
 	//------------ Inicialización y Conversión de energía ------------
+	ConversionInfo_t energiaMagos;
+	energiaMagos.datoAConvertir = 500;
 	
+	if (unidadEnergia[0] == 'J' && unidadEnergia[1] == '\0') { //Comprobamos en base a si es J o kJ
+
+		energiaMagos.unidadEntrada[0] = 'J';
+		energiaMagos.unidadEntrada[1] = '\0';
+
+		energiaMagos.unidadSalida[0] = 'k';
+		energiaMagos.unidadSalida[1] = 'J';
+		energiaMagos.unidadSalida[2] = '\0';
+
+	} else if (unidadEnergia[0] == 'k' && unidadEnergia[1] == 'J' && unidadEnergia[2] == '\0') {
+
+		energiaMagos.unidadSalida[0] = 'J';
+		energiaMagos.unidadSalida[1] = '\0';
+
+		energiaMagos.unidadEntrada[0] = 'k';
+		energiaMagos.unidadEntrada[1] = 'J';
+		energiaMagos.unidadEntrada[2] = '\0';
+
+	}else {
+
+		printf("Unidad no permitida, usa J o kJ \n");
+		return 1;
+
+	}
+
+	magoPersona.energia = convertir_energia(energiaMagos);
+	magoMaquina.energia = convertir_energia(energiaMagos);
 	
-	double costeAtaque;
+	/*double costeAtaque;
 	double limiteEnergia;
 	double recarga;
 
@@ -327,8 +359,8 @@ int main(int argc, char* argv[]){
 	energiaMagos.unidadSalida[1] = unidadEnergia[1];
 	energiaMagos.unidadSalida[2] = '\0';
 
-	magoPersona.energia = convertir_energia(energiaMagos); 	// convertir_energia se encarga de dar 500 o 0.5 según la unidad
-	magoMaquina.energia = convertir_energia(energiaMagos);
+	magoPersona.energia = convertir_energia(energiaMagos); 
+	magoMaquina.energia = convertir_energia(energiaMagos);*/
 			
 	//3. Creación del panel e introducción del mismo en un bucle
 	
@@ -356,26 +388,41 @@ int main(int argc, char* argv[]){
 				if(userNameChecked == 0){  
 					magoDano = calcular_danio(magoPersona);
 					
-					if(magoPersona.energia < costeAtaque){
+					if((int)magoPersona.energia < magoDano){
 						printf("El mago %s no tiene suficiente energia para atacar \n", magoPersona.nombre);
 					}else{
 						printf("%s ataca y causa %d de danio\n", magoPersona.nombre, magoDano);
-						magoPersona.energia = magoPersona.energia - costeAtaque;  // se resta en la unidad correcta
+						magoPersona.energia = magoPersona.energia - magoDano;  // se resta en la unidad correcta
 						magoMaquina.vida = magoMaquina.vida - magoDano; 
 						turnoValido = 1;
 					}
 					
 				}else{
-					magoDano = calcular_danio(magoMaquina);
 					
-					if(magoMaquina.energia < costeAtaque){
-						printf("El mago %s no tiene suficiente energia para atacar \n", magoMaquina.nombre);
+					int probabilidadAtaque = calculaAtaqueMaquina();
+					
+					if(probabilidadAtaque == 1){
+						magoDano = calcular_danio(magoMaquina);
+					
+						if((int)magoMaquina.energia < magoDano){
+							printf("El mago %s no tiene suficiente energia para atacar \n", magoMaquina.nombre);
+						}else{
+							printf("%s ataca y causa %d de danio\n", magoMaquina.nombre, magoDano);
+							magoMaquina.energia = magoMaquina.energia - magoDano;
+							magoPersona.vida = magoPersona.vida - magoDano; 
+							turnoValido = 1;
+						}
 					}else{
-						printf("%s ataca y causa %d de danio\n", magoMaquina.nombre, magoDano);
-						magoMaquina.energia = magoMaquina.energia - costeAtaque;
-						magoPersona.vida = magoPersona.vida - magoDano; 
+						printf("El mago %s ha decidido NO atacar \n", magoMaquina.nombre);
+						
+						magoMaquina.energia = magoMaquina.energia + 150;
+						if((int)magoMaquina.energia > 500){
+							diferencia = (int)magoMaquina.energia - 500;
+							magoMaquina.energia = (int)magoMaquina.energia - diferencia;
+						}
 						turnoValido = 1;
 					}
+					
 				}
 				break;
 				
@@ -416,8 +463,8 @@ int main(int argc, char* argv[]){
 				
 			case 3:				
 				printf("--- estado ---\n");
-				printf("nombre: %s | vida: %d | energia: %.2f | elemento: %s | potencia: %d \n", magoPersona.nombre, magoPersona.vida, magoPersona.energia, magoPersona.elemento, magoPersona.potencia);
-				printf("nombre: %s | vida: %d | energia: %.2f | elemento: %s | potencia: %d \n", magoMaquina.nombre, magoMaquina.vida, magoMaquina.energia, magoMaquina.elemento, magoMaquina.potencia);
+				printf("nombre: %s | vida: %d | energia: %.0f | elemento: %s | potencia: %d \n", magoPersona.nombre, magoPersona.vida, magoPersona.energia, magoPersona.elemento, magoPersona.potencia);
+				printf("nombre: %s | vida: %d | energia: %.0f | elemento: %s | potencia: %d \n", magoMaquina.nombre, magoMaquina.vida, magoMaquina.energia, magoMaquina.elemento, magoMaquina.potencia);
 				printf("--------------\n");
 				turnoValido = 1;
 				break;
@@ -453,7 +500,7 @@ double convertir_energia(ConversionInfo_t conversion){
 	
 	double energiaInicial = conversion.datoAConvertir;
 	
-	if(conversion.unidadSalida[0] == 'k' && conversion.unidadSalida[1] == 'J' && conversion.unidadSalida[2] == '\0'){
+	if(conversion.unidadEntrada[0] == 'k' && conversion.unidadEntrada[1] == 'J' && conversion.unidadEntrada[2] == '\0'){
 		energiaInicial = conversion.datoAConvertir / 1000.0;
 	}
 
@@ -468,6 +515,20 @@ void ensenaMenu(){
 	printf("-----------------------\n");
 }
 
+int calculaAtaqueMaquina(){
+	
+	int prob = rand() % 100 + 1;
+	int ataque = 0;
+	
+	if(prob >= 40){
+		printf("La máquina decide atacar -> %d \n", prob);
+		ataque = 1;
+	}else{
+		printf("La máquina decide NO atacar -> %d \n", prob);
+	}
+	
+	return ataque;
+}
 
 int calcular_danio(Mago_t atacante){
 		
