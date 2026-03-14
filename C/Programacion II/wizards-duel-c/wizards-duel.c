@@ -43,23 +43,23 @@ Para la toma de decisiones de la máquina deberá utilizarse aleatoriedad (rand(
 Deben utilizarse las estructuras, enumerados (y otros tipos si se consideran necesarios) para modelar los datos del problema.
 
 Funciones obligatorias
-1. Conversión de energía: -> HECHO
-	double convertir_energia(ConversionInfo_t conversion); -> HECHO
+1. Conversión de energía:
+	double convertir_energia(ConversionInfo_t conversion);
 
-La estructura de conversión deberá incluir: -> HECHO
-	• el dato a convertir -> HECHO 
-	• la unidad de entrada -> HECHO
-	• la unidad de salida -> HECHO
+La estructura de conversión deberá incluir: 
+	• el dato a convertir  
+	• la unidad de entrada 
+	• la unidad de salida 
 
 Equivalencia:
-• 1 kJ = 1000 J -> HECHO
+• 1 kJ = 1000 J 
 
-2. Cálculo de daño: -> HECHO
-	int calcular_danio(Mago_t atacante); -> HECHO
+2. Cálculo de daño: 
+	int calcular_danio(Mago_t atacante);
 
-La función devolverá el daño causado según el elemento: -> HECHO
-• FUEGO → potencia + 5 -> HECHO
-• HIELO → potencia * 2 -> HECHO
+La función devolverá el daño causado según el elemento
+• FUEGO → potencia + 5 
+• HIELO → potencia * 2 
 */
 
 
@@ -70,8 +70,6 @@ La función devolverá el daño causado según el elemento: -> HECHO
 #include <stdio.h>
 #include <stdlib.h> 
 #include <time.h>
-#include <stdlib.h>
-
 
 typedef struct {
 	double datoAConvertir;
@@ -100,6 +98,7 @@ int main(int argc, char* argv[]){
 		return 1;
 	}
 	
+	//Variables para identificar valores de la linea de comandos
 	char nombreUsuario1[10];
 	char ataqueUsuario1[10];
 	char elementoUsuario1[50];
@@ -154,9 +153,9 @@ int main(int argc, char* argv[]){
         
 		char *elemento = argv[i];
         for(int j = 0; elemento[j] != '\0'; j++){
-			buffer[pos++] = elemento[j];
+			buffer[pos++] = elemento[j]; //Metemos los valores con espacios en un buffer para poder separarlos
 		}
-        buffer[pos++] = ' '; //Añadimos espacio al buffer por cada elemento para poder iterar y sacar el 3 valor del string (elemento)
+        buffer[pos++] = ' '; //Añadimos espacio al buffer por cada elemento para poder iterar y sacar los valores
     }
 	
     buffer[pos] = '\0';
@@ -165,7 +164,8 @@ int main(int argc, char* argv[]){
 		
         if(buffer[j] == ',' || (contadorDePalabras == 5 && buffer[j] == ' ')){
 			contadorDePalabras++;
-
+			
+			//Logica para ver desde donde empieza la palabra y hasta donde llega teniendo en cuenta la primera posicion de la siguiente palabra
 			if(contadorDePalabras == 1 && firstSentenceCompleted == 0){
 				for(int inicioPrimeraPalabra = 0; buffer[inicioPrimeraPalabra] != ','; inicioPrimeraPalabra++){
 					nombreUsuario1[contLetrasPrimeraPalabra++] = buffer[inicioPrimeraPalabra];
@@ -187,7 +187,7 @@ int main(int argc, char* argv[]){
 				
 				elementoUsuario1[contLetrasTerceraPalabra] = '\0';
 				finPalabra3 = inicioTerceraPalabra + 1;
-				contadorDePalabras++; //Sumamos 1 al contador de palabras (comas) para que pueda leer el resto de palabras de los strings porque si no no lo va a leer debido al espacio (no hay coma)
+				contadorDePalabras++; //Sumamos 1 al contador de palabras (comas) para que pueda leer el resto de palabras de los strings porque si no, no lo va a leer debido al espacio que hay(no hay coma)
 				firstSentenceCompleted = 1;
 			}
             
@@ -247,7 +247,7 @@ int main(int argc, char* argv[]){
 	magoPersona.nombre[10] = '\0'; 
 	magoMaquina.nombre[10] = '\0';
 	
-	magoPersona.potencia = atoi(ataqueUsuario1);
+	magoPersona.potencia = atoi(ataqueUsuario1); //Atoi para pasar de ASCII to Integger
 	magoMaquina.potencia = atoi(ataqueUsuario2);
 	
 	if(magoPersona.potencia <= 0 || magoMaquina.potencia <= 0){ 
@@ -336,36 +336,11 @@ int main(int argc, char* argv[]){
 
 	magoPersona.energia = convertir_energia(energiaMagos);
 	magoMaquina.energia = convertir_energia(energiaMagos);
-	
-	/*double costeAtaque;
-	double limiteEnergia;
-	double recarga;
-
-	if(unidadEnergia[0] == 'k'){
-		costeAtaque = 0.1;
-		limiteEnergia = 0.5;
-		recarga = 0.15;
-	} else {
-		costeAtaque = 100;
-		limiteEnergia = 500;
-		recarga = 150;
-	}
-
-	ConversionInfo_t energiaMagos;
-	energiaMagos.datoAConvertir = 500; // partimos de 500J
-	energiaMagos.unidadEntrada[0] = 'J';
-	energiaMagos.unidadEntrada[1] = '\0';
-	energiaMagos.unidadSalida[0] = unidadEnergia[0];
-	energiaMagos.unidadSalida[1] = unidadEnergia[1];
-	energiaMagos.unidadSalida[2] = '\0';
-
-	magoPersona.energia = convertir_energia(energiaMagos); 
-	magoMaquina.energia = convertir_energia(energiaMagos);*/
 			
 	//3. Creación del panel e introducción del mismo en un bucle
 	
 	int respuesta;
-	int userNameChecked = 0;
+	int esPersonajeUsuario = 0;
 	int magoDano = 0;
 	int turnoValido = 0;
 	int diferencia;
@@ -373,7 +348,7 @@ int main(int argc, char* argv[]){
 	while(magoPersona.vida > 0 && magoMaquina.vida > 0){
 		turnoValido = 0; //Se resetea al inicio de cada iteracion
 
-		if(userNameChecked == 0){
+		if(esPersonajeUsuario == 0){
 			printf("Turno de %s \n", magoPersona.nombre);
 		}else {
 			printf("Turno de %s \n", magoMaquina.nombre);
@@ -385,7 +360,7 @@ int main(int argc, char* argv[]){
 		switch(respuesta){
 			case 1:
 			
-				if(userNameChecked == 0){  
+				if(esPersonajeUsuario == 0){  
 					magoDano = calcular_danio(magoPersona);
 					
 					if((int)magoPersona.energia < magoDano){
@@ -429,7 +404,7 @@ int main(int argc, char* argv[]){
 			case 2:
 				diferencia = 0;
 				
-				if(userNameChecked == 0){
+				if(esPersonajeUsuario == 0){
 					
 					magoPersona.energia = magoPersona.energia + 150;
 					
@@ -475,7 +450,7 @@ int main(int argc, char* argv[]){
 		}
 
 		if(turnoValido == 1){
-			userNameChecked = (userNameChecked == 0) ? 1 : 0; //Ternario, por eficiencia usado en vez de if else anidado
+			esPersonajeUsuario = (esPersonajeUsuario == 0) ? 1 : 0; //Ternario, por eficiencia usado en vez de if else anidado
 		}
 	}
 	
@@ -490,9 +465,6 @@ int main(int argc, char* argv[]){
 	
 	return 0;
 }
-
-//TODO: Revisar logica para cuando la unidad es kJ modificar la energia en el programa
-
 
 //4. Inicialización de las funciones obligatorias por cada opción + energia
 
@@ -521,10 +493,7 @@ int calculaAtaqueMaquina(){
 	int ataque = 0;
 	
 	if(prob >= 40){
-		printf("La máquina decide atacar -> %d \n", prob);
 		ataque = 1;
-	}else{
-		printf("La máquina decide NO atacar -> %d \n", prob);
 	}
 	
 	return ataque;
