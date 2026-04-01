@@ -59,12 +59,25 @@ Sólo está permitido el uso de las librerías stdio.h y stdlib.h. Está permiti
 #include <stdio.h>
 #include <stdlib.h>
 
+typedef struct {
+	int fila;
+	int columna;
+	int dia;
+} evento_t;
+
+typedef struct {
+	evento_t *histInfectados;
+	int cantidad;
+	int capacidad;
+} historial_t;
+
 void muestraMenu();
 char** crearCiudad(int n);
 void rellenaCiudad(char** ciudad, int n, char valor);
 void liberaCiudad(char** ciudad, int n);
-void infectarPersona(char** ciudad, int n, int fila, int col,int diaActual); //historial_t* historial, 
+void infectarPersona(char** ciudad, int n, historial_t* historial, int fila, int col,int diaActual); 
 void muestraCiudad(char** ciudad, int n);
+void insertaEvento(historial_t* historial, evento_t nuevoEvento);
 int main(int argc, char* argv[]){
 	
 	//1 Pasamos el tamaño de la matriz n x n por argv, mediante la funcion obligatoria char** crearCiudad(int n)
@@ -73,6 +86,10 @@ int main(int argc, char* argv[]){
 	int opcion;
 	int filaUsuario = 0;
 	int columnaUsuario = 0;
+	historial_t historialInfectados;
+	historialInfectados.cantidad = 0;
+	historialInfectados.capacidad = 0;
+	historialInfectados.histInfectados = NULL;
 	
 	if(argc != 2){
 		printf("Numero de argumentos incorrectos.\n");
@@ -88,9 +105,8 @@ int main(int argc, char* argv[]){
 	//3 Iniciamos focos de infección manualmente, para ello implementaremos la función: void infectarPersona(char** ciudad, int n, historial_t* historial, int fila, int col,int diaActual);
 	//  que pedirá la fila y columna de la persona a infectar (I) por consola al usuario y guardará el evento de infección en caso de que la persona a infectar esté sana (S).
 	
-	//x Tenemos en cuenta que persona ha sido infectada pasando de S -> I y guardando un registro [fila,columna,dia]
-	
-	//x Creamos estructura que almacene dinámicamente todos los eventos de infección, que contendrá un array dinámico que deberá crecer con cada nueva infección. void insertaEvento(historial_t* historial, evento_t nuevoEvento);
+	//4 Tenemos en cuenta que persona ha sido infectada pasando de S -> I y guardando un registro [fila,columna,dia]
+	//  Creamos estructura que almacene dinámicamente todos los eventos de infección, que contendrá un array dinámico que deberá crecer con cada nueva infección. void insertaEvento(historial_t* historial, evento_t nuevoEvento);
 	//  y void liberaHistorial(historial_t* historial);
 	
 	
@@ -120,7 +136,7 @@ int main(int argc, char* argv[]){
 					return 1;
 				}
 				
-				infectarPersona(ciudad,tamanoCiudad,filaUsuario,columnaUsuario, 1); //TODO: Revisar logica para el dia actual + historial_t
+				infectarPersona(ciudad,tamanoCiudad, &historialInfectados,filaUsuario,columnaUsuario, 1); //TODO: Revisar logica para el dia actual + historial_t
 				break;
 			case 2:
 				printf("Opcion 2 seleccionada\n");
@@ -180,14 +196,32 @@ void liberaCiudad(char** ciudad, int n){
 	free(ciudad);
 };
 
-void infectarPersona(char** ciudad, int n, int fila, int col,int diaActual){ //historial_t* historial,
+void infectarPersona(char** ciudad, int n, historial_t* historial, int fila, int col,int diaActual){
 	//  que pedirá la fila y columna de la persona a infectar (I) por consola al usuario y guardará el evento de infección en caso de que la persona a infectar esté sana (S).
 	
 	if(ciudad[fila][col] == 'S'){
 		ciudad[fila][col] = 'I';
-		printf("Persona en [%d][%d] infectada", fila, col);		
-		//TODO: Guardar el evento
+		printf("Persona en [%d][%d] infectada", fila, col);	
+		
+		//Guardamos el evento llamado a la funcion insertaEvento
+		evento_t nuevoEvento;		
+		nuevoEvento.dia = diaActual;
+		nuevoEvento.fila = fila;
+		nuevoEvento.columna = col;
+		insertaEvento(historial,nuevoEvento);
 	}
+};
+
+void insertaEvento(historial_t* historial, evento_t nuevoEvento){
+	
+	historial->cantidad++;
+	historial->histInfectados = (evento_t*)realloc(historial->histInfectados, historial->cantidad * sizeof(evento_t));
+	historial->histInfectados[historial->cantidad - 1] = nuevoEvento;
+	//TODO: Continuar con liberación + mostrar el historial opcion 4
+};
+
+void liberaHistorial(historial_t* historial){
+	
 };
 
 void muestraCiudad(char** ciudad, int n){
