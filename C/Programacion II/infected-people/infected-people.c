@@ -60,9 +60,44 @@ Sólo está permitido el uso de las librerías stdio.h y stdlib.h. Está permiti
 #include <stdlib.h>
 
 void muestraMenu();
+char** crearCiudad(int n);
+void rellenaCiudad(char** ciudad, int n, char valor);
+void liberaCiudad(char** ciudad, int n);
+void infectarPersona(char** ciudad, int n, int fila, int col,int diaActual); //historial_t* historial, 
+void muestraCiudad(char** ciudad, int n);
 int main(int argc, char* argv[]){
 	
+	//1 Pasamos el tamaño de la matriz n x n por argv, mediante la funcion obligatoria char** crearCiudad(int n)
+	
+	int tamanoCiudad = atoi(argv[1]);
 	int opcion;
+	int filaUsuario = 0;
+	int columnaUsuario = 0;
+	
+	if(argc != 2){
+		printf("Numero de argumentos incorrectos.\n");
+		return 1;
+	}
+	
+	char ** ciudad = crearCiudad(tamanoCiudad);
+
+	//2 Rellenamos la matriz con personas sanas mediante void rellenaCiudad(char** ciudad, int n, char valor) y void liberaCiudad(char** ciudad, int n);
+	
+	rellenaCiudad(ciudad, tamanoCiudad, 'S');
+	
+	//3 Iniciamos focos de infección manualmente, para ello implementaremos la función: void infectarPersona(char** ciudad, int n, historial_t* historial, int fila, int col,int diaActual);
+	//  que pedirá la fila y columna de la persona a infectar (I) por consola al usuario y guardará el evento de infección en caso de que la persona a infectar esté sana (S).
+	
+	//x Tenemos en cuenta que persona ha sido infectada pasando de S -> I y guardando un registro [fila,columna,dia]
+	
+	//x Creamos estructura que almacene dinámicamente todos los eventos de infección, que contendrá un array dinámico que deberá crecer con cada nueva infección. void insertaEvento(historial_t* historial, evento_t nuevoEvento);
+	//  y void liberaHistorial(historial_t* historial);
+	
+	
+	
+	//6 Añadimos logica para avanzar dias void avanzarDia(char** ciudad, int n, historial_t* historial, int diaActual);
+	
+	//7 Revision para que las nuevas infecciones del dia no provoquen nuevas infecciones en el mismo dia
 	
 	printf("Bienvenido, seleccione una opcion: \n");
 	while(1){
@@ -70,13 +105,28 @@ int main(int argc, char* argv[]){
 		scanf("%d", &opcion);
 		switch(opcion){
 			case 1:
-				printf("Opcion 1 seleccionada\n");
+				//TODO: Añadir validaciones para cuando no son numeros los que se introducen
+				printf("Por favor, inserte la fila:\n");
+				scanf("%d", &filaUsuario);
+				if(filaUsuario < 0 || filaUsuario >= tamanoCiudad){
+					printf("Tamano de fila superior o inferior a tamano de fila de matriz, saliendo...\n");
+					return 1;
+				}
+				
+				printf("Por favor, inserte la columna:\n");
+				scanf("%d", &columnaUsuario);
+				if(columnaUsuario < 0 || columnaUsuario >= tamanoCiudad){
+					printf("Tamano de columna superior o inferior a tamano de columna de matriz, saliendo...\n");
+					return 1;
+				}
+				
+				infectarPersona(ciudad,tamanoCiudad,filaUsuario,columnaUsuario, 1); //TODO: Revisar logica para el dia actual + historial_t
 				break;
 			case 2:
 				printf("Opcion 2 seleccionada\n");
 				break;
 			case 3:
-				printf("Opcion 3 seleccionada\n");
+				muestraCiudad(ciudad,tamanoCiudad);
 				break;
 			case 4:
 				printf("Opcion 4 seleccionada\n");
@@ -92,6 +142,63 @@ int main(int argc, char* argv[]){
 	}
 	return 0;
 }
+
+char** crearCiudad(int n){
+	//1.1 Creamos array dinamico de n x n
+	char **ciudad = (char**)malloc(sizeof(char)* n);
+	
+	if(ciudad == NULL){
+		printf("Fallo creando matriz dinamica, memoria insuficiente.\n");
+		return NULL;
+	}
+	
+	for(int i = 0; i < n;  i++){
+		ciudad[i] = (char*)malloc(sizeof(char)* n);
+		if(ciudad[i] == NULL){
+			printf("Fallo creando columna de matriz dinamica, memoria insuficiente.\n");
+			return NULL;
+		}
+	}
+	
+	return ciudad;
+}
+
+void rellenaCiudad(char** ciudad, int n, char valor){
+	for(int i = 0; i < n; i++){
+		for(int j = 0; j < n; j++){	
+			ciudad[i][j] = valor;
+			printf("[%c]", ciudad[i][j]);
+		}
+		printf("\n");
+	}
+}
+
+void liberaCiudad(char** ciudad, int n){
+	for(int i = 0; i < n; i++){
+		free(ciudad[i]);
+	}
+	free(ciudad);
+};
+
+void infectarPersona(char** ciudad, int n, int fila, int col,int diaActual){ //historial_t* historial,
+	//  que pedirá la fila y columna de la persona a infectar (I) por consola al usuario y guardará el evento de infección en caso de que la persona a infectar esté sana (S).
+	
+	if(ciudad[fila][col] == 'S'){
+		ciudad[fila][col] = 'I';
+		printf("Persona en [%d][%d] infectada", fila, col);		
+		//TODO: Guardar el evento
+	}
+};
+
+void muestraCiudad(char** ciudad, int n){
+	for(int i = 0; i < n; i++){
+		for(int j = 0; j < n; j++){		
+			printf("[%c]", ciudad[i][j]);
+		}
+		printf("\n");
+	}
+}
+
 
 void muestraMenu(){
 	printf("-----------------------\n");
