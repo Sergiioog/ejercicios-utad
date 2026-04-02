@@ -78,6 +78,9 @@ void liberaCiudad(char** ciudad, int n);
 void infectarPersona(char** ciudad, int n, historial_t* historial, int fila, int col,int diaActual); 
 void muestraCiudad(char** ciudad, int n);
 void insertaEvento(historial_t* historial, evento_t nuevoEvento);
+void liberaHistorial(historial_t* historial);
+void muestraHistorial(historial_t* historial);
+void avanzarDia(char** ciudad, int n, historial_t* historial, int diaActual);
 int main(int argc, char* argv[]){
 	
 	//1 Pasamos el tamaño de la matriz n x n por argv, mediante la funcion obligatoria char** crearCiudad(int n)
@@ -109,9 +112,23 @@ int main(int argc, char* argv[]){
 	//  Creamos estructura que almacene dinámicamente todos los eventos de infección, que contendrá un array dinámico que deberá crecer con cada nueva infección. void insertaEvento(historial_t* historial, evento_t nuevoEvento);
 	//  y void liberaHistorial(historial_t* historial);
 	
+	//5 Añadimos logica para avanzar dias void avanzarDia(char** ciudad, int n, historial_t* historial, int diaActual);
 	
-	
-	//6 Añadimos logica para avanzar dias void avanzarDia(char** ciudad, int n, historial_t* historial, int diaActual);
+	/*
+	El programa permitirá avanzar días.
+	Al avanzar un día, se aplicarán las siguientes reglas:
+		1. Toda persona sana ('S') que tenga al menos un vecino infectado (arriba, abajo, izquierda o derecha) pasara a infectada ('I').
+		2. Todas las personas que estaban infectadas ('I') pasaran a recuperadas ('R').
+		3. Todas las nuevas infecciones deberán registrarse en el historial dinámico indicando el día correspondiente.
+		
+	La actualización debe realizarse correctamente para que las nuevas infecciones del día no provoquen infecciones adicionales en el mismo día.
+	Se recomienda utilizar una estructura auxiliar (por ejemplo, otra matriz) para realizar la actualización.
+
+	Pista: guardar en la matriz auxiliar las nuevas infecciones, después en el tablero actualizar a recuperado (R) las personas infectadas (I) y seguidamente volcar las personas infectadas de la matriz auxiliar en el tablero.
+
+	Se debe implementar:
+		void avanzarDia(char** ciudad, int n, historial_t* historial, int diaActual);
+	*/
 	
 	//7 Revision para que las nuevas infecciones del dia no provoquen nuevas infecciones en el mismo dia
 	
@@ -140,12 +157,13 @@ int main(int argc, char* argv[]){
 				break;
 			case 2:
 				printf("Opcion 2 seleccionada\n");
+				
 				break;
 			case 3:
 				muestraCiudad(ciudad,tamanoCiudad);
 				break;
 			case 4:
-				printf("Opcion 4 seleccionada\n");
+				muestraHistorial(&historialInfectados);
 				break;
 			case 5:
 				printf("Opcion 5 seleccionada, saliendo... \n");
@@ -200,9 +218,7 @@ void infectarPersona(char** ciudad, int n, historial_t* historial, int fila, int
 	//  que pedirá la fila y columna de la persona a infectar (I) por consola al usuario y guardará el evento de infección en caso de que la persona a infectar esté sana (S).
 	
 	if(ciudad[fila][col] == 'S'){
-		ciudad[fila][col] = 'I';
-		printf("Persona en [%d][%d] infectada", fila, col);	
-		
+		ciudad[fila][col] = 'I';		
 		//Guardamos el evento llamado a la funcion insertaEvento
 		evento_t nuevoEvento;		
 		nuevoEvento.dia = diaActual;
@@ -217,11 +233,15 @@ void insertaEvento(historial_t* historial, evento_t nuevoEvento){
 	historial->cantidad++;
 	historial->histInfectados = (evento_t*)realloc(historial->histInfectados, historial->cantidad * sizeof(evento_t));
 	historial->histInfectados[historial->cantidad - 1] = nuevoEvento;
-	//TODO: Continuar con liberación + mostrar el historial opcion 4
+	//TODO: mostrar el historial opcion 4
+	
 };
 
 void liberaHistorial(historial_t* historial){
-	
+	free(historial->histInfectados);
+	historial->histInfectados = NULL;
+	historial->cantidad = 0;
+	historial->capacidad = 0;
 };
 
 void muestraCiudad(char** ciudad, int n){
@@ -230,6 +250,21 @@ void muestraCiudad(char** ciudad, int n){
 			printf("[%c]", ciudad[i][j]);
 		}
 		printf("\n");
+	}
+}
+
+void muestraHistorial(historial_t* historial){
+	printf("Historial de infecciones: \n");
+	for(int i = 0; i < historial->cantidad; i++){
+		printf("Dia: %d / Fila: %d / Columna: %d\n", historial->histInfectados->dia, historial->histInfectados->fila, historial->histInfectados->columna);
+	}
+}
+
+void avanzarDia(char** ciudad, int n, historial_t* historial, int diaActual){
+	for (int i = 0; i < n; i++){
+		for (int j  = 0; j < n; j++){
+			
+		} 
 	}
 }
 
@@ -243,3 +278,4 @@ void muestraMenu(){
 	printf("5. Salir\n");
 	printf("-----------------------\n");
 }
+	
