@@ -89,6 +89,7 @@ int main(int argc, char* argv[]){
 	int opcion;
 	int filaUsuario = 0;
 	int columnaUsuario = 0;
+	int diaActual = 1;
 	historial_t historialInfectados;
 	historialInfectados.cantidad = 0;
 	historialInfectados.capacidad = 0;
@@ -114,22 +115,6 @@ int main(int argc, char* argv[]){
 	
 	//5 Añadimos logica para avanzar dias void avanzarDia(char** ciudad, int n, historial_t* historial, int diaActual);
 	
-	/*
-	El programa permitirá avanzar días.
-	Al avanzar un día, se aplicarán las siguientes reglas:
-		1. Toda persona sana ('S') que tenga al menos un vecino infectado (arriba, abajo, izquierda o derecha) pasara a infectada ('I').
-		2. Todas las personas que estaban infectadas ('I') pasaran a recuperadas ('R').
-		3. Todas las nuevas infecciones deberán registrarse en el historial dinámico indicando el día correspondiente.
-		
-	La actualización debe realizarse correctamente para que las nuevas infecciones del día no provoquen infecciones adicionales en el mismo día.
-	Se recomienda utilizar una estructura auxiliar (por ejemplo, otra matriz) para realizar la actualización.
-
-	Pista: guardar en la matriz auxiliar las nuevas infecciones, después en el tablero actualizar a recuperado (R) las personas infectadas (I) y seguidamente volcar las personas infectadas de la matriz auxiliar en el tablero.
-
-	Se debe implementar:
-		void avanzarDia(char** ciudad, int n, historial_t* historial, int diaActual);
-	*/
-	
 	//7 Revision para que las nuevas infecciones del dia no provoquen nuevas infecciones en el mismo dia
 	
 	printf("Bienvenido, seleccione una opcion: \n");
@@ -153,11 +138,11 @@ int main(int argc, char* argv[]){
 					return 1;
 				}
 				
-				infectarPersona(ciudad,tamanoCiudad, &historialInfectados,filaUsuario,columnaUsuario, 1); //TODO: Revisar logica para el dia actual + historial_t
+				infectarPersona(ciudad,tamanoCiudad,&historialInfectados,filaUsuario,columnaUsuario, diaActual);
 				break;
 			case 2:
-				printf("Opcion 2 seleccionada\n");
-				
+				avanzarDia(ciudad,tamanoCiudad,&historialInfectados,diaActual); 
+				diaActual++;
 				break;
 			case 3:
 				muestraCiudad(ciudad,tamanoCiudad);
@@ -225,6 +210,10 @@ void infectarPersona(char** ciudad, int n, historial_t* historial, int fila, int
 		nuevoEvento.fila = fila;
 		nuevoEvento.columna = col;
 		insertaEvento(historial,nuevoEvento);
+	}else if(ciudad[fila][col] == 'I') {
+		printf("No puedes volver a infectar a una persona ya infectada\n");
+	}else {
+		printf("No puedes volver a infectar a una persona recuperada\n");
 	}
 };
 
@@ -256,16 +245,79 @@ void muestraCiudad(char** ciudad, int n){
 void muestraHistorial(historial_t* historial){
 	printf("Historial de infecciones: \n");
 	for(int i = 0; i < historial->cantidad; i++){
-		printf("Dia: %d / Fila: %d / Columna: %d\n", historial->histInfectados->dia, historial->histInfectados->fila, historial->histInfectados->columna);
+		printf("Dia: %d / Fila: %d / Columna: %d\n", historial->histInfectados[i].dia, historial->histInfectados[i].fila, historial->histInfectados[i].columna);
 	}
 }
 
+
+/*
+	El programa permitirá avanzar días.
+	Al avanzar un día, se aplicarán las siguientes reglas:
+		1. Toda persona sana ('S') que tenga al menos un vecino infectado (arriba, abajo, izquierda o derecha) pasara a infectada ('I').
+		2. Todas las personas que estaban infectadas ('I') pasaran a recuperadas ('R').
+		3. Todas las nuevas infecciones deberán registrarse en el historial dinámico indicando el día correspondiente.
+		
+	La actualización debe realizarse correctamente para que las nuevas infecciones del día no provoquen infecciones adicionales en el mismo día.
+	Se recomienda utilizar una estructura auxiliar (por ejemplo, otra matriz) para realizar la actualización.
+
+	Pista: guardar en la matriz auxiliar las nuevas infecciones, después en el tablero actualizar a recuperado (R) las personas infectadas (I) y seguidamente volcar las personas infectadas de la matriz auxiliar en el tablero.
+
+	Se debe implementar:
+		void avanzarDia(char** ciudad, int n, historial_t* historial, int diaActual);
+	*/
+	
+	
+
 void avanzarDia(char** ciudad, int n, historial_t* historial, int diaActual){
+	
+	char **matrizAuxiliar = crearCiudad(n);
+	
+	for(int i = 0; i < n; i++){
+		for(int j = 0; j < n; j++){
+			matrizAuxiliar[i][j] = 'S'; //Rellenamos la matriz auxiliar con sanos
+		}
+	}
+	
 	for (int i = 0; i < n; i++){
-		for (int j  = 0; j < n; j++){
+		for(int j  = 0; j < n; j++){
+			int infectado = 0;
+			if(ciudad[i][j] == 'S'){
+				
+				//1. Toda persona sana ('S') que tenga al menos un vecino infectado (arriba, abajo, izquierda o derecha) pasara a infectada ('I').
+				if(i-1 >= 0 && ciudad[i-1][j] == 'I') infectado = 1;
+				if(i+1 < n && ciudad[i+1][j] == 'I') infectado = 1;
+				if(j-1 >= 0 && ciudad[i][j-1] == 'I') infectado = 1;
+				if(j+1 < n && ciudad[i][j+1] == 'I') infectado = 1;
+				
+				if(infectado == 1){
+					matrizAuxiliar[i][j] = 'I';
+					printf("Persona en Mat. Aux. posicion [%d,%d] infectada\n", i,j);
+				}
 			
+			}
+			if(ciudad[i][j] == 'I'){
+				//2. Todas las personas que estaban infectadas ('I') pasaran a recuperadas ('R').
+				ciudad[i][j] = 'R';
+			}
 		} 
 	}
+	
+	//3. Volcamos las nuevas infecciones a la matriz original
+	for(int i = 0; i < n; i++){
+		for(int j = 0; j < n; j++){
+			if(matrizAuxiliar[i][j] == 'I'){
+				ciudad[i][j] = 'I';
+				//4. Todas las nuevas infecciones deberán registrarse en el historial dinámico indicando el día correspondiente.
+				evento_t nuevoEvento;		
+				nuevoEvento.dia = diaActual;
+				nuevoEvento.fila = i;
+				nuevoEvento.columna = j;
+				insertaEvento(historial,nuevoEvento);
+			}
+		}
+	}
+	
+	printf("Datos volcados con exito \n");
 }
 
 
