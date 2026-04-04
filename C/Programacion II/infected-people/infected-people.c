@@ -56,6 +56,9 @@
 	Sólo está permitido el uso de las librerías stdio.h y stdlib.h. Está permitido el uso de la función atoi 
 	*/
 
+	
+	//Nombre de alumno: Sergio García Gordo //Actividad: Tema 3 //Fecha: 04/04/2026
+	
 	#include <stdio.h>
 	#include <stdlib.h>
 
